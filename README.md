@@ -1,5 +1,8 @@
 # 🎶 Music Genre Classification with Machine Learning  
 
+[![Julia](https://img.shields.io/badge/Language-Julia-9558B2?logo=julia&logoColor=white)](https://julialang.org/)  
+[![Kaggle Dataset](https://img.shields.io/badge/Dataset-Kaggle-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/datasets/tomigelo/spotify-audio-features)  
+
 Classifying music genres using audio features and **classical machine learning models** 🎧.  
 Originally developed as part of the *Fundamentals of Machine Learning* course, the project has been **translated into English** and **extended with statistical significance testing** to ensure more robust conclusions.  
 
@@ -12,11 +15,17 @@ We implemented and compared several classical ML models, and validated our findi
 ---
 
 ## 🎼 Dataset  
-- Source: [Spotify Audio Features dataset](https://www.kaggle.com/datasets/zaheenhamidani/ultimate-spotify-tracks-db)  
-- ~10,000 tracks  
+- Source: [Spotify Audio Features dataset](https://www.kaggle.com/datasets/tomigelo/spotify-audio-features)  
+- ~100,000 tracks  
 - Features: tempo, energy, danceability, loudness, etc.  
-- Target: 10 genres  
+- Target: 10 genres (enriched using **Spotify API**)  
 - Preprocessing: normalization, one-hot encoding, stratified cross-validation  
+- **Instance reduction** applied to balance the dataset:  
+  - Random Undersampling  
+  - Edited Nearest Neighbors (ENN)  
+- **Files in `data/`:**  
+  - `spotify_dataset.csv` – main dataset  
+  - `cv_indices.jl` – cross-validation indices for reproducibility  
 
 ---
 
@@ -26,13 +35,13 @@ Models implemented:
 - 🔎 k-Nearest Neighbors (kNN)  
 - 🌳 Decision Trees  
 - 🧠 Artificial Neural Networks (ANN)  
-- 🎲 DoME (Diversity of Models Ensemble)  
+- 🎲 DoME (Developement of Mathematical Expressions)  
 
-**Pipeline**  
+**Pipeline:**  
 1. Data preprocessing  
 2. Cross-validation training  
 3. Evaluation (accuracy, F1-score, confusion matrices)  
-4. Statistical significance testing (paired t-tests)  
+4. Statistical significance testing (Friedman + Wilcoxon post-hoc)  
 
 ---
 
@@ -43,19 +52,72 @@ Models implemented:
 
 Example outputs:  
 
-![Accuracy Comparison](results/figures/accuracy_comparison.png)  
-![Confusion Matrix](results/figures/confusion_matrix_svm.png)  
+[![Accuracy Comparison](results/figures/accuracy_comparison.png)](results/figures/accuracy_comparison.png)  
+[![Confusion Matrix](results/figures/confusion_matrix_svm.png)](results/figures/confusion_matrix_svm.png)  
 
 ---
 
 ## ⚖️ Statistical Analysis  
-To ensure results were not due to chance, we applied **paired t-tests** comparing SVM against other models.  
-- ✅ SVM was significantly better than kNN and Decision Trees (*p < 0.05*).  
-- ❌ No significant difference was found between SVM and ANN.  
+To ensure results were not due to chance, we applied:  
+- **Friedman test** to detect overall differences across models  
+- **Wilcoxon post-hoc tests** for pairwise comparisons  
+
+✅ SVM was significantly better than kNN and Decision Trees (*p < 0.05*)  
+❌ No significant difference was found between SVM and ANN  
 
 ---
 
-## 🚀 How to Run  
+## 🔹 Repository Structure  
+
+```
+music-genre-classification/
+│
+├── src/
+│   ├── main.jl                # Runs the full pipeline from data loading to evaluation
+│   ├── eda.jl                 # Performs exploratory data analysis
+│   ├── models.jl              # Defines all ML models
+    ├── trainer.jl             # Facilitates experimentation and results management 
+│   ├── evaluation.jl          # Computes metrics and plots confusion matrices
+│   └── stats_tests.jl         # Performs Friedman + Wilcoxon post-hoc tests
+│
+├── data/
+│   ├── spotify_dataset.csv    # Main dataset
+│   └── cv_indices.jl          # Cross-validation indices for reproducibility
+│
+├── results/
+│   └── figures/               # Plots and tables generated
+│
+├── report/
+│   └── full_report.pdf        # Detailed report
+│
+└── README.md                  # This file
+```
+---
+
+
+**Brief explanation of each module:**  
+- **main.jl** – Runs the full pipeline from loading data to model evaluation and plotting.  
+- **preprocessing.jl** – Handles normalization, one-hot encoding, and instance reduction (Random Undersampling + ENN).  
+- **models.jl** – Defines and trains all machine learning models used in the project.  
+- **evaluation.jl** – Computes metrics (accuracy, F1-score) and plots confusion matrices, comparisons, etc.  
+- **stats_tests.jl** – Performs statistical tests (Friedman + Wilcoxon) to validate results.  
+
+---
+
+## 📝 Full Report  
+The report includes:  
+- Related work  
+- Dataset creation and enrichment process  
+- Exploratory Data Analysis (EDA)  
+- Preprocessing steps and rationale  
+- Model evaluation and result discussion  
+- Ideas for future work  
+
+Check the `report/full_report.pdf` for the full document 📄.  
+
+---
+
+## 💻 How to Run  
 Clone the repository and install dependencies:  
 
 ```bash
@@ -63,3 +125,4 @@ git clone https://github.com/yourusername/music-genre-classification.git
 cd music-genre-classification
 julia --project
 using Pkg; Pkg.instantiate()
+julia src/main.jl
