@@ -86,62 +86,54 @@ function plot_confusion_matrix(results_df::DataFrame, model_type::String, labels
     println("Plotted confusion matrix for best $model_type model with parameters: $model_params")
 end
 
-
 """
-    plot_models_boxplot(results_df, model_types; savepath="models_boxplot.png")
+    plot_top_models_boxplot(results_df, top_n; savepath="top_models_boxplot.png")
 
-Plot and save a boxplot comparing the best model of each specified type.
+Plot and save a boxplot comparing the top-N models by mean accuracy.
 
 # Arguments
 - `results_df::DataFrame`: DataFrame containing model results.
-- `model_types::Vector{String}`: List of model types to compare (e.g., ["SVC", "DecisionTreeClassifier", "KNeighborsClassifier"]).
-- `savepath::String`: File path where the plot will be saved (default: "models_boxplot.png").
+- `top_n::Int`: Number of top models to select based on mean accuracy.
+- `savepath::String`: File path where the plot will be saved (default: "top_models_boxplot.png").
 
 # Returns
-- `Nothing`. Saves the boxplot comparing the best models of each type.
+- `Nothing`. Saves the boxplot comparing the top-N models.
 """
-function plot_models_boxplot(results_df::DataFrame, model_types::Vector{String}; savepath::String="models_boxplot.png")
+function plot_top_models_boxplot(results_df::DataFrame, top_n::Int; savepath::String="top_models_boxplot.png")
+    # 1. Sort models by mean accuracy descending
+    sorted_results = sort(results_df, :acc_mean, rev=true)
+    n_select = min(top_n, nrow(sorted_results))
+    top_models = sorted_results[1:n_select, :]
+
     accuracies = Float64[]
     model_names = String[]
-    
-    for model_type in model_types
-        # Filter results for this model type
-        model_results = filter(row -> row.model == model_type, results_df)
-        
-        if nrow(model_results) == 0
-            @warn "No results found for model type: $model_type"
-            continue
-        end
-        
-        # Find the model with highest accuracy
-        best_idx = argmax(model_results.acc_mean)
-        best_model = model_results[best_idx, :]
-        
-        # Get the accuracy vector for the best model
-        accuracy_vector = best_model.accuracy_vector
-        
-        # Add all accuracy values from cross-validation
+
+    println("SELECTED MODELS (Top $n_select by mean accuracy):")
+    for (i, row) in enumerate(eachrow(top_models))
+        accuracy_vector = row.accuracy_vector
+        model_name = "$(row.model)_$i"   # Name with index to differentiate configs
+
         append!(accuracies, accuracy_vector)
-        append!(model_names, fill(model_type, length(accuracy_vector)))
-        
-        println("Best $model_type: $(best_model.params) with mean accuracy: $(round(best_model.acc_mean, digits=3))")
+        append!(model_names, fill(model_name, length(accuracy_vector)))
+
+        println("Top $(i): $model_name with mean accuracy: $(round(row.acc_mean, digits=3))")
     end
-    
+
     if isempty(accuracies)
-        error("No valid models found for the specified types")
+        error("No valid models found in the dataset")
     end
-    
+
     # Create boxplot
     boxplot(model_names, accuracies;
-            xlabel = "Model Type",
+            xlabel = "Model",
             ylabel = "Accuracy",
-            title = "Best Models Comparison Boxplot",
+            title = "Top $n_select Models Comparison Boxplot",
             legend = false,
             xrotation = 45,
             size = (800, 600))
-    
+
     # Save boxplot
     savefig(savepath)
-    
-    println("Boxplot saved with $(length(unique(model_names))) model types")
+
+    println("Boxplot saved with $n_select top models")
 end

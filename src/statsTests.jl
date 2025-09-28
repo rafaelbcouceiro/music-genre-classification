@@ -151,7 +151,7 @@ function create_ranking_plot(model_names, avg_rankings, p_value, α)
     annotate!([(length(sorted_names)/2, maximum(sorted_rankings) * 0.9, 
                text(significance_text, 12, color_text, :bold))])
     
-    savefig("friedman_rankings.png")
+    savefig("results/figures/evaluation/friedman_rankings.png")
     println("\nPlot saved as 'friedman_rankings.png'")
     return p
 end
@@ -248,8 +248,6 @@ function wilcoxonPostHoc(results_df::DataFrame; top_n::Int=5, α::Float64=0.05)
         pval_matrix[i, i] = 0.0
     end
     
-
-
     # 6. Plot heatmap
     heatmap(
         x_flip=false,
@@ -267,7 +265,7 @@ function wilcoxonPostHoc(results_df::DataFrame; top_n::Int=5, α::Float64=0.05)
                             for j in 1:size(pval_matrix, 2)],
     )
 
-    savefig("wilcoxonHeatmap.png")
+    savefig("results/figures/evaluation/wilcoxonHeatmap.png")
     
     return results
 end

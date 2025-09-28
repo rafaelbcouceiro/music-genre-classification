@@ -8,7 +8,7 @@ using StatsPlots
 using Statistics
 using PrettyTables
 using StatsBase: mode
-include("models.jl") 
+include("/content/models.jl") 
 
 
 

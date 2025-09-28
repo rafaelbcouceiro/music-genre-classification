@@ -499,8 +499,8 @@ function trainClassANN(topology::AbstractArray{<:Int,1},
    (Array{eltype(trainingDataset[1]),2}(undef,0,size(trainingDataset[1],2)),
    falses(0,size(trainingDataset[2],2))),
     transferFunctions::AbstractArray{<:Function,1}=fill(σ, length(topology)),
-    maxEpochs::Int=1000, minLoss::Real=0.0, learningRate::Real=0.01,
-    maxEpochsVal::Int=20)
+    maxEpochs::Int=120, minLoss::Real=0.0, learningRate::Real=0.01,
+    maxEpochsVal::Int=10)
 
     trainingInputs = Float32.(trainingDataset[1]') # Convert inputs to float32
     validationInputs = Float32.(validationDataset[1]') # Convert inputs to float32
@@ -610,8 +610,8 @@ function trainClassANN(topology::AbstractArray{<:Int,1},
    (Array{eltype(trainingDataset[1]),2}(undef,0,size(trainingDataset[1],2)),
    falses(0)),
     transferFunctions::AbstractArray{<:Function,1}=fill(σ, length(topology)),
-    maxEpochs::Int=1000, minLoss::Real=0.0, learningRate::Real=0.01,
-    maxEpochsVal::Int=20) 
+    maxEpochs::Int=120, minLoss::Real=0.0, learningRate::Real=0.01,
+    maxEpochsVal::Int=10) 
 
     # Reshape targets into column vectors
     newTrainingDataset = (trainingDataset[1], reshape(trainingDataset[2], :, 1))
@@ -1203,10 +1203,10 @@ Each fold is executed multiple times to provide robust statistical estimates of 
 function ANNCrossValidation(topology::AbstractArray{<:Int,1},
     dataset::Tuple{AbstractArray{<:Real,2}, AbstractArray{<:Any,1}},
     crossValidationIndices::Array{Int64,1};
-    numExecutions::Int=50,
+    numExecutions::Int=30,
     transferFunctions::AbstractArray{<:Function,1}=fill(σ, length(topology)),
-    maxEpochs::Int=1000, minLoss::Real=0.0, learningRate::Real=0.01,
-    validationRatio::Real=0, maxEpochsVal::Int=20) 
+    maxEpochs::Int=120, minLoss::Real=0.0, learningRate::Real=0.01,
+    validationRatio::Real=0, maxEpochsVal::Int=10) 
 
     inputs, targets = dataset # Decompose dataset
     classes = unique(targets) # Calculate classes
